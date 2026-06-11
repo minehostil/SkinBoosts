@@ -49,3 +49,81 @@ show-particles: true
 
 # Prefix for plugin messages
 prefix: '&8[&6SkinBoosts&8] &r'
+
+# Messages (supports & color codes)
+# Placeholders: {cmd}, {name}, {value}, {count}
+messages:
+  no-permission: '&cNo tienes permiso para usar este comando.'
+  player-only: '&cDebes ser jugador para usar ''hand''.'
+  no-cmd-in-hand: '&cEl item en tu mano no tiene CustomModelData.'
+  invalid-cmd: '&cValor de CustomModelData inválido: &f{value}'
+  invalid-multipliers: '&cMultiplicadores inválidos. Usa números (ej. 1.5).'
+  skin-saved: '&aSkin &f{cmd} &a({name}) guardada correctamente.'
+  skin-saved-values: '&7  Essence: &f{essence}x &7| Money: &f{money}x &7| ToolXP: &f{toolxp}x &7| CyberXP: &f{cyberxp}x'
+  skin-clamped: '&eAlgún multiplicador fue reducido al máximo permitido.'
+  skin-removed: '&aSkin &f{cmd} eliminada correctamente.'
+  skin-not-found: '&cNo existe ninguna skin registrada con CMD &f{cmd}&c.'
+  no-skins: '&7No hay skins registradas.'
+  list-header: '&6=== Skins Registradas ({count}) ==='
+  list-limits: '&7Límites — E:&f{essence} &7M:&f{money} &7TX:&f{toolxp} &7CX:&f{cyberxp}'
+  list-entry: '&e{cmd} &7— &f{name} &7| E:&f{essence}x &7M:&f{money}x &7TX:&f{toolxp}x &7CX:&f{cyberxp}x'
+  reload-done: '&aConfiguración recargada. &7({count} skins)'
+  info-not-found: '&7No hay boost registrado para CMD &f{cmd}&7.'
+  info-header: '&6Info de CMD &f{cmd} &7— &f{name}'
+  info-essence: '&7  Essence:  &f{value}x'
+  info-money: '&7  Dinero:   &f{value}x'
+  info-toolxp: '&7  Tool XP:  &f{value}x'
+  info-cyberxp: '&7  Cyber XP: &f{value}x'
+  usage-set: '&eUso: &f/skinboost set <cmd|hand> <nombre> <essence> <dinero> <tool-xp> <cyber-xp>'
+  usage-set-example: '&7Ejemplo: &f/skinboost set 1001 "Pico_Fuego" 1.5 1.2 1.5 1.3'
+  usage-remove: '&eUso: &f/skinboost remove <cmd>'
+  usage-info: '&eUso: &f/skinboost info <cmd>'
+  help-header: '&6=== SkinBoosts Commands ==='
+  help-set: '&e/skinboost set <cmd|hand> <nombre> <essence> <money> <tool-xp> <cyber-xp>'
+  help-remove: '&e/skinboost remove <cmd>'
+  help-list: '&e/skinboost list'
+  help-info: '&e/skinboost info [cmd]'
+  help-reload: '&e/skinboost reload'
+
+# ---------------------------------------------------------------
+#  REFERENCE — Commands & Placeholders (do not edit this section)
+# ---------------------------------------------------------------
+#
+# COMMANDS (permission: skinboosts.admin)
+#
+#   /skinboost set <cmd|hand> <nombre> <essence> <money> <tool-xp> <cyber-xp>
+#       Registers a skin boost by CustomModelData or reads CMD from hand.
+#       Example: /skinboost set 1001 Pico_Fuego 1.5 1.2 1.5 1.3
+#
+#   /skinboost remove <cmd>
+#       Removes a registered skin boost.
+#
+#   /skinboost list
+#       Lists all registered skins and active limits.
+#
+#   /skinboost info [cmd]
+#       Shows multipliers for a CMD, or reads CMD from hand if omitted.
+#
+#   /skinboost reload
+#       Reloads config.yml without restarting the server.
+#
+# ---------------------------------------------------------------
+#
+# PLACEHOLDERS (requires PlaceholderAPI)
+#
+#   %skinboosts_essence%      Essence multiplier (e.g. 1.50)
+#   %skinboosts_money%        Money multiplier
+#   %skinboosts_toolxp%       Tool XP multiplier
+#   %skinboosts_cyberxp%      Cyber XP multiplier
+#   %skinboosts_essence_fmt%  Essence multiplier with x prefix (e.g. x1.50)
+#   %skinboosts_money_fmt%    Money multiplier with x prefix
+#   %skinboosts_toolxp_fmt%   Tool XP multiplier with x prefix
+#   %skinboosts_cyberxp_fmt%  Cyber XP multiplier with x prefix
+#   %skinboosts_name%         Display name of the active skin, or "None"
+#   %skinboosts_cmd%          Raw CustomModelData int, or -1 if none
+#   %skinboosts_active%       true / false
+#
+#   All placeholders read the item currently in the player's main hand.
+#   Returns default values (1.00 / false / None) if no boost is registered.
+#
+# ---------------------------------------------------------------
