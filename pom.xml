@@ -39,27 +39,21 @@
             <version>2.11.6</version>
             <scope>provided</scope>
         </dependency>
-        <!-- RivalHarvesterHoes: install locally with:
-             mvn install:install-file -Dfile=RivalHarvesterHoes.jar
-               -DgroupId=me.rivaldev -DartifactId=harvesterhoes
-               -Dversion=1.0 -Dpackaging=jar
-        -->
+        <!-- RivalHarvesterHoes: coloca el JAR en libs/RivalHarvesterHoes.jar -->
         <dependency>
             <groupId>me.rivaldev</groupId>
             <artifactId>harvesterhoes</artifactId>
             <version>1.0</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/RivalHarvesterHoes.jar</systemPath>
         </dependency>
-        <!-- CyberLevels: install locally with:
-             mvn install:install-file -Dfile=CyberLevels.jar
-               -DgroupId=com.bitaspire -DartifactId=cyberlevels
-               -Dversion=1.0 -Dpackaging=jar
-        -->
+        <!-- CyberLevels: coloca el JAR en libs/CyberLevels.jar -->
         <dependency>
             <groupId>com.bitaspire</groupId>
             <artifactId>cyberlevels</artifactId>
             <version>1.0</version>
-            <scope>provided</scope>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/CyberLevels.jar</systemPath>
         </dependency>
     </dependencies>
 
