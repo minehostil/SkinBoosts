@@ -137,6 +137,7 @@ public class SkinBoostManager {
     }
 
     // Expose limits so the command can show them
+    public SkinBoostsPlugin getPlugin() { return plugin; }
     public double getMaxEssence()  { return maxEssence; }
     public double getMaxMoney()    { return maxMoney; }
     public double getMaxToolXp()   { return maxToolXp; }
