@@ -22,11 +22,10 @@ public class SkinBoostsPlugin extends JavaPlugin {
 
         messages = new Messages(this);
 
-        if (Bukkit.getPluginManager().getPlugin("RivalHarvesterHoes") == null)
-            getLogger().warning("RivalHarvesterHoes not found — Essence/Money/ToolXP boosts disabled.");
-
-        if (Bukkit.getPluginManager().getPlugin("CyberLevels") == null)
-            getLogger().warning("CyberLevels not found — CyberXP boosts disabled.");
+        checkPlugin("RivalHarvesterHoes", "Hoe Essence/Money/ToolXP boosts");
+        checkPlugin("RivalMobSwords",     "Sword Essence/Money/XP boosts");
+        checkPlugin("RivalPickaxes",      "Pickaxe Essence/Money/XP boosts");
+        checkPlugin("CyberLevels",        "CyberXP boosts");
 
         getServer().getPluginManager().registerEvents(new HarvestListener(this, boostManager), this);
 
@@ -45,6 +44,13 @@ public class SkinBoostsPlugin extends JavaPlugin {
     @Override
     public void onDisable() {
         getLogger().info("SkinBoosts disabled.");
+    }
+
+    private void checkPlugin(String name, String feature) {
+        if (Bukkit.getPluginManager().getPlugin(name) == null)
+            getLogger().warning(name + " not found — " + feature + " disabled.");
+        else
+            getLogger().info(name + " hooked.");
     }
 
     public SkinBoostManager getBoostManager() { return boostManager; }
