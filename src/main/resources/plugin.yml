@@ -1,0 +1,20 @@
+name: SkinBoosts
+version: '${project.version}'
+main: com.minehostil.skinboosts.SkinBoostsPlugin
+api-version: '1.21'
+description: Applies multiplier boosts based on item CustomModelData skin
+softdepend:
+  - PlaceholderAPI
+  - RivalHarvesterHoes
+  - CyberLevels
+
+commands:
+  skinboost:
+    description: Manage skin boost configurations
+    usage: /skinboost <set|remove|list|reload> [args...]
+    permission: skinboosts.admin
+
+permissions:
+  skinboosts.admin:
+    description: Access to all SkinBoosts admin commands
+    default: op
