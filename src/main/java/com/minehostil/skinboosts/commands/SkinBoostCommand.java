@@ -54,7 +54,10 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
     // ---------------------------------------------------------------
 
     private void handleSet(CommandSender sender, String[] args) {
-        if (args.length < 7) {
+        // Accepts both:
+        //   /skinboost set <cmd> <nombre> <essence> <money> <tool-xp> <cyber-xp>  (7 args)
+        //   /skinboost set <cmd> <essence> <money> <tool-xp> <cyber-xp>            (6 args, no name)
+        if (args.length < 6) {
             sender.sendMessage(msg.get("usage-set"));
             sender.sendMessage(msg.get("usage-set-example"));
             return;
@@ -80,14 +83,29 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        String name = args[2].replace("_", " ");
+        // Detect if args[2] is a number (no name provided) or a name
+        String name;
+        int offset;
+        if (isDouble(args[2])) {
+            name = String.valueOf(customModelData); // use CMD as name
+            offset = 2;
+        } else {
+            name = args[2].replace("_", " ");
+            offset = 3;
+        }
+
+        if (args.length < offset + 4) {
+            sender.sendMessage(msg.get("usage-set"));
+            sender.sendMessage(msg.get("usage-set-example"));
+            return;
+        }
 
         double essence, money, toolXp, cyberXp;
         try {
-            essence = Double.parseDouble(args[3]);
-            money   = Double.parseDouble(args[4]);
-            toolXp  = Double.parseDouble(args[5]);
-            cyberXp = Double.parseDouble(args[6]);
+            essence = Double.parseDouble(args[offset]);
+            money   = Double.parseDouble(args[offset + 1]);
+            toolXp  = Double.parseDouble(args[offset + 2]);
+            cyberXp = Double.parseDouble(args[offset + 3]);
         } catch (NumberFormatException e) {
             sender.sendMessage(msg.get("invalid-multipliers"));
             return;
@@ -213,6 +231,11 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
         ItemMeta meta = item.getItemMeta();
         if (meta == null || !meta.hasCustomModelData()) return -1;
         return meta.getCustomModelData();
+    }
+
+    private boolean isDouble(String s) {
+        try { Double.parseDouble(s); return true; }
+        catch (NumberFormatException e) { return false; }
     }
 
     private String fmt(double value) {
