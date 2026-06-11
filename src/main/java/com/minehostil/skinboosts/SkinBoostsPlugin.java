@@ -3,6 +3,7 @@ package com.minehostil.skinboosts;
 import com.minehostil.skinboosts.commands.SkinBoostCommand;
 import com.minehostil.skinboosts.listeners.HarvestListener;
 import com.minehostil.skinboosts.manager.SkinBoostManager;
+import com.minehostil.skinboosts.model.Messages;
 import com.minehostil.skinboosts.placeholders.SkinBoostsExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,6 +11,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class SkinBoostsPlugin extends JavaPlugin {
 
     private SkinBoostManager boostManager;
+    private Messages messages;
 
     @Override
     public void onEnable() {
@@ -17,6 +19,8 @@ public class SkinBoostsPlugin extends JavaPlugin {
 
         boostManager = new SkinBoostManager(this);
         boostManager.loadFromConfig();
+
+        messages = new Messages(this);
 
         if (Bukkit.getPluginManager().getPlugin("RivalHarvesterHoes") == null)
             getLogger().warning("RivalHarvesterHoes not found — Essence/Money/ToolXP boosts disabled.");
@@ -26,7 +30,7 @@ public class SkinBoostsPlugin extends JavaPlugin {
 
         getServer().getPluginManager().registerEvents(new HarvestListener(this, boostManager), this);
 
-        SkinBoostCommand cmdExecutor = new SkinBoostCommand(this, boostManager);
+        SkinBoostCommand cmdExecutor = new SkinBoostCommand(this, boostManager, messages);
         getCommand("skinboost").setExecutor(cmdExecutor);
         getCommand("skinboost").setTabCompleter(cmdExecutor);
 
@@ -44,4 +48,5 @@ public class SkinBoostsPlugin extends JavaPlugin {
     }
 
     public SkinBoostManager getBoostManager() { return boostManager; }
+    public Messages getMessages()              { return messages; }
 }
