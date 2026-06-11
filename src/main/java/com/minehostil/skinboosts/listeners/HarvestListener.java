@@ -22,7 +22,6 @@ import me.rivaldev.pickaxes.api.events.PickaxeXPGainEvent;
 // CyberLevels
 import com.bitaspire.cyberlevels.event.ExpChangeEvent;
 
-import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -33,7 +32,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class HarvestListener implements Listener {
 
     private final SkinBoostManager manager;
-    private final boolean showParticles;
     private final boolean rivalHoesEnabled;
     private final boolean rivalSwordsEnabled;
     private final boolean rivalPickaxesEnabled;
@@ -41,7 +39,6 @@ public class HarvestListener implements Listener {
 
     public HarvestListener(SkinBoostsPlugin plugin, SkinBoostManager manager) {
         this.manager = manager;
-        this.showParticles       = plugin.getConfig().getBoolean("show-particles", true);
         this.rivalHoesEnabled    = plugin.getServer().getPluginManager().getPlugin("RivalHarvesterHoes") != null;
         this.rivalSwordsEnabled  = plugin.getServer().getPluginManager().getPlugin("RivalMobSwords") != null;
         this.rivalPickaxesEnabled = plugin.getServer().getPluginManager().getPlugin("RivalPickaxes") != null;
@@ -58,7 +55,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getEssenceMultiplier() <= 1.0) return;
         event.setEssence(event.getEssence() * boost.getEssenceMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -67,7 +63,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getMoneyMultiplier() <= 1.0) return;
         event.setMoney(event.getMoney() * boost.getMoneyMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -76,7 +71,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getToolXpMultiplier() <= 1.0) return;
         event.setXP(event.getXP() * boost.getToolXpMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     // ---------------------------------------------------------------
@@ -89,7 +83,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getEssenceMultiplier() <= 1.0) return;
         event.setEssence(event.getEssence() * boost.getEssenceMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -98,7 +91,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getMoneyMultiplier() <= 1.0) return;
         event.setMoney(event.getMoney() * boost.getMoneyMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -109,7 +101,6 @@ public class HarvestListener implements Listener {
         // SwordEXP uses int
         int boosted = (int) Math.round(event.getEXP() * boost.getToolXpMultiplier());
         event.setEXP(boosted);
-        maybeParticle(event.getPlayer());
     }
 
     // ---------------------------------------------------------------
@@ -122,7 +113,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getEssenceMultiplier() <= 1.0) return;
         event.setEssence(event.getEssence() * boost.getEssenceMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -131,7 +121,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getMoneyMultiplier() <= 1.0) return;
         event.setMoney(event.getMoney() * boost.getMoneyMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -140,7 +129,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(event.getPlayer());
         if (boost == null || boost.getToolXpMultiplier() <= 1.0) return;
         event.setXP(event.getXP() * boost.getToolXpMultiplier());
-        maybeParticle(event.getPlayer());
     }
 
     // ---------------------------------------------------------------
@@ -155,7 +143,6 @@ public class HarvestListener implements Listener {
         SkinBoostData boost = getBoostFromHand(player);
         if (boost == null || boost.getCyberXpMultiplier() <= 1.0) return;
         event.setAmount(event.getAmount() * boost.getCyberXpMultiplier());
-        maybeParticle(player);
     }
 
     // ---------------------------------------------------------------
@@ -170,12 +157,4 @@ public class HarvestListener implements Listener {
         return manager.getBoost(meta.getCustomModelData());
     }
 
-    private void maybeParticle(Player player) {
-        if (!showParticles) return;
-        player.getWorld().spawnParticle(
-                Particle.VILLAGER_HAPPY,
-                player.getLocation().add(0, 1, 0),
-                6, 0.3, 0.3, 0.3, 0.0
-        );
-    }
 }
