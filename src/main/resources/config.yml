@@ -8,7 +8,7 @@
 #   cyber-xp   - CyberLevels XP
 
 skins:
-  # CustomModelData 1001 → "Pico de Fuego"
+  # CustomModelData 1001 -> "Pico de Fuego"
   1001:
     name: '&cPico de Fuego'
     multipliers:
@@ -17,7 +17,7 @@ skins:
       tool-xp: 1.5
       cyber-xp: 1.3
 
-  # CustomModelData 1002 → "Pico de Hielo"
+  # CustomModelData 1002 -> "Pico de Hielo"
   1002:
     name: '&bPico de Hielo'
     multipliers:
@@ -26,7 +26,7 @@ skins:
       tool-xp: 2.0
       cyber-xp: 1.5
 
-  # CustomModelData 1003 → "Pico Sombra"
+  # CustomModelData 1003 -> "Pico Sombra"
   1003:
     name: '&5Pico Sombra'
     multipliers:
@@ -34,6 +34,15 @@ skins:
       money: 2.0
       tool-xp: 3.0
       cyber-xp: 2.5
+
+# Maximum allowed value for each multiplier.
+# If a skin exceeds these values it will be clamped automatically.
+# Set to 0.0 to disable the limit for that type.
+max-multipliers:
+  essence: 5.0
+  money: 5.0
+  tool-xp: 5.0
+  cyber-xp: 5.0
 
 # Particles shown when a boost triggers (true/false)
 show-particles: true
