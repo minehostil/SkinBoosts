@@ -4,6 +4,7 @@ import com.minehostil.skinboosts.SkinBoostsPlugin;
 import com.minehostil.skinboosts.manager.SkinBoostManager;
 import com.minehostil.skinboosts.model.Messages;
 import com.minehostil.skinboosts.model.SkinBoostData;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -44,6 +45,7 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             case "list"   -> handleList(sender);
             case "reload" -> handleReload(sender);
             case "info"   -> handleInfo(sender, args);
+            case "apply"  -> handleApply(sender, args);
             default       -> sendHelp(sender);
         }
         return true;
@@ -216,9 +218,57 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("set", "remove", "list", "reload", "info");
+        if (args.length == 1) return Arrays.asList("set", "remove", "list", "reload", "info", "apply");
         if (args.length == 2 && args[0].equalsIgnoreCase("set")) return List.of("hand", "<customModelData>");
+        if (args.length == 2 && args[0].equalsIgnoreCase("apply")) return List.of("<customModelData>");
+        if (args.length == 3 && args[0].equalsIgnoreCase("apply"))
+            return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
         return List.of();
+    }
+
+    private void handleApply(CommandSender sender, String[] args) {
+        if (args.length < 2) {
+            sender.sendMessage(msg.get("usage-apply"));
+            return;
+        }
+
+        int cmd;
+        try {
+            cmd = Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            sender.sendMessage(msg.get("invalid-cmd", "value", args[1]));
+            return;
+        }
+
+        // Resolve target player
+        Player target;
+        if (args.length >= 3) {
+            target = Bukkit.getPlayer(args[2]);
+            if (target == null) {
+                sender.sendMessage(msg.get("player-not-found", "name", args[2]));
+                return;
+            }
+        } else if (sender instanceof Player p) {
+            target = p;
+        } else {
+            sender.sendMessage(msg.get("usage-apply-console"));
+            return;
+        }
+
+        ItemStack item = target.getInventory().getItemInMainHand();
+        if (item.getType().isAir()) {
+            sender.sendMessage(msg.get("apply-no-item"));
+            return;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        meta.setCustomModelData(cmd);
+        item.setItemMeta(meta);
+
+        sender.sendMessage(msg.get("apply-done", "cmd", String.valueOf(cmd), "player", target.getName()));
+        if (sender != target) {
+            target.sendMessage(msg.get("apply-done-target", "cmd", String.valueOf(cmd)));
+        }
     }
 
     // ---------------------------------------------------------------
@@ -252,6 +302,7 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(msg.getRaw("help-remove"));
         sender.sendMessage(msg.getRaw("help-list"));
         sender.sendMessage(msg.getRaw("help-info"));
+        sender.sendMessage(msg.getRaw("help-apply"));
         sender.sendMessage(msg.getRaw("help-reload"));
     }
 }
