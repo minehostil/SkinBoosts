@@ -44,9 +44,6 @@ max-multipliers:
   tool-xp: 5.0
   cyber-xp: 5.0
 
-# Particles shown when a boost triggers (true/false)
-show-particles: true
-
 # Prefix for plugin messages
 prefix: '&8[&6SkinBoosts&8] &r'
 
