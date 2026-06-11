@@ -1,8 +1,9 @@
 package com.minehostil.skinboosts.commands;
 
-import com.minehostil.skinboosts.model.SkinBoostData;
-import com.minehostil.skinboosts.manager.SkinBoostManager;
 import com.minehostil.skinboosts.SkinBoostsPlugin;
+import com.minehostil.skinboosts.manager.SkinBoostManager;
+import com.minehostil.skinboosts.model.Messages;
+import com.minehostil.skinboosts.model.SkinBoostData;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -15,36 +16,20 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-/**
- * /skinboost <subcommand> [args]
- *
- * Subcommands:
- *   set <cmd> <name> <essence> <money> <tool-xp> <cyber-xp>
- *       OR
- *   set hand <name> <essence> <money> <tool-xp> <cyber-xp>
- *       (reads CMD from the item currently in hand)
- *
- *   remove <cmd>
- *   list
- *   reload
- *   info [cmd]   — shows current multipliers for a skin
- */
 public class SkinBoostCommand implements CommandExecutor, TabCompleter {
 
-    private final SkinBoostsPlugin plugin;
     private final SkinBoostManager manager;
+    private final Messages msg;
 
-    private static final String PREFIX_RAW = "&8[&6SkinBoosts&8] &r";
-
-    public SkinBoostCommand(SkinBoostsPlugin plugin, SkinBoostManager manager) {
-        this.plugin = plugin;
+    public SkinBoostCommand(SkinBoostsPlugin plugin, SkinBoostManager manager, Messages msg) {
         this.manager = manager;
+        this.msg = msg;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if (!sender.hasPermission("skinboosts.admin")) {
-            msg(sender, "&cNo tienes permiso para usar este comando.");
+            sender.sendMessage(msg.get("no-permission"));
             return true;
         }
 
@@ -68,33 +53,29 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
     //  Subcommand handlers
     // ---------------------------------------------------------------
 
-    /**
-     * /skinboost set <cmd|hand> <name> <essence> <money> <tool-xp> <cyber-xp>
-     */
     private void handleSet(CommandSender sender, String[] args) {
-        // Need: set + cmdOrHand + name + 4 multipliers = 7 args
         if (args.length < 7) {
-            msg(sender, "&eUso: &f/skinboost set <cmd|hand> <nombre> <essence> <dinero> <tool-xp> <cyber-xp>");
-            msg(sender, "&7Ejemplo: &f/skinboost set 1001 \"Pico_Fuego\" 1.5 1.2 1.5 1.3");
+            sender.sendMessage(msg.get("usage-set"));
+            sender.sendMessage(msg.get("usage-set-example"));
             return;
         }
 
         int customModelData;
         if (args[1].equalsIgnoreCase("hand")) {
             if (!(sender instanceof Player p)) {
-                msg(sender, "&cDebes ser jugador para usar 'hand'.");
+                sender.sendMessage(msg.get("player-only"));
                 return;
             }
             customModelData = getCmdFromHand(p);
             if (customModelData == -1) {
-                msg(sender, "&cEl item en tu mano no tiene CustomModelData.");
+                sender.sendMessage(msg.get("no-cmd-in-hand"));
                 return;
             }
         } else {
             try {
                 customModelData = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                msg(sender, "&cValor de CustomModelData inválido: &f" + args[1]);
+                sender.sendMessage(msg.get("invalid-cmd", "value", args[1]));
                 return;
             }
         }
@@ -108,75 +89,74 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             toolXp  = Double.parseDouble(args[5]);
             cyberXp = Double.parseDouble(args[6]);
         } catch (NumberFormatException e) {
-            msg(sender, "&cMultiplicadores inválidos. Usa números (ej. 1.5).");
+            sender.sendMessage(msg.get("invalid-multipliers"));
             return;
         }
 
         SkinBoostData saved = manager.setSkin(customModelData, name, essence, money, toolXp, cyberXp);
-        msg(sender, "&aSkin &f" + customModelData + " &a(" + name + ") &aguardada correctamente.");
-        msg(sender, "&7  Essence: &f" + saved.getEssenceMultiplier()
-                + "x &7| Money: &f" + saved.getMoneyMultiplier()
-                + "x &7| ToolXP: &f" + saved.getToolXpMultiplier()
-                + "x &7| CyberXP: &f" + saved.getCyberXpMultiplier() + "x");
-        // Warn if any value was clamped
+
+        sender.sendMessage(msg.get("skin-saved",
+                "cmd", String.valueOf(customModelData), "name", name));
+        sender.sendMessage(msg.get("skin-saved-values",
+                "essence", fmt(saved.getEssenceMultiplier()),
+                "money",   fmt(saved.getMoneyMultiplier()),
+                "toolxp",  fmt(saved.getToolXpMultiplier()),
+                "cyberxp", fmt(saved.getCyberXpMultiplier())));
+
         if (saved.getEssenceMultiplier() < essence || saved.getMoneyMultiplier() < money
                 || saved.getToolXpMultiplier() < toolXp || saved.getCyberXpMultiplier() < cyberXp) {
-            msg(sender, "&eAlgún multiplicador fue reducido al máximo permitido.");
+            sender.sendMessage(msg.get("skin-clamped"));
         }
     }
 
-    /**
-     * /skinboost remove <cmd>
-     */
     private void handleRemove(CommandSender sender, String[] args) {
         if (args.length < 2) {
-            msg(sender, "&eUso: &f/skinboost remove <cmd>");
+            sender.sendMessage(msg.get("usage-remove"));
             return;
         }
         int cmd;
         try {
             cmd = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
-            msg(sender, "&cValor inválido: &f" + args[1]);
+            sender.sendMessage(msg.get("invalid-cmd", "value", args[1]));
             return;
         }
 
         if (manager.removeSkin(cmd)) {
-            msg(sender, "&aSkin &f" + cmd + " &aeliminada correctamente.");
+            sender.sendMessage(msg.get("skin-removed", "cmd", String.valueOf(cmd)));
         } else {
-            msg(sender, "&cNo existe ninguna skin registrada con CMD &f" + cmd + "&c.");
+            sender.sendMessage(msg.get("skin-not-found", "cmd", String.valueOf(cmd)));
         }
     }
 
     private void handleList(CommandSender sender) {
         Collection<SkinBoostData> all = manager.getAllBoosts();
         if (all.isEmpty()) {
-            msg(sender, "&7No hay skins registradas.");
+            sender.sendMessage(msg.get("no-skins"));
             return;
         }
-        // Show configured limits
-        msg(sender, "&6=== Skins Registradas (" + all.size() + ") ===");
-        msg(sender, "&7Límites — E:&f" + fmtLimit(manager.getMaxEssence())
-                + " &7M:&f" + fmtLimit(manager.getMaxMoney())
-                + " &7TX:&f" + fmtLimit(manager.getMaxToolXp())
-                + " &7CX:&f" + fmtLimit(manager.getMaxCyberXp()));
+        sender.sendMessage(msg.get("list-header", "count", String.valueOf(all.size())));
+        sender.sendMessage(msg.get("list-limits",
+                "essence", fmtLimit(manager.getMaxEssence()),
+                "money",   fmtLimit(manager.getMaxMoney()),
+                "toolxp",  fmtLimit(manager.getMaxToolXp()),
+                "cyberxp", fmtLimit(manager.getMaxCyberXp())));
         for (SkinBoostData d : all) {
-            msg(sender, "&e" + d.getCustomModelData() + " &7— &f" + d.getName()
-                    + " &7| E:&f" + d.getEssenceMultiplier()
-                    + "x &7M:&f" + d.getMoneyMultiplier()
-                    + "x &7TX:&f" + d.getToolXpMultiplier()
-                    + "x &7CX:&f" + d.getCyberXpMultiplier() + "x");
+            sender.sendMessage(msg.getRaw("list-entry",
+                    "cmd",     String.valueOf(d.getCustomModelData()),
+                    "name",    d.getName(),
+                    "essence", fmt(d.getEssenceMultiplier()),
+                    "money",   fmt(d.getMoneyMultiplier()),
+                    "toolxp",  fmt(d.getToolXpMultiplier()),
+                    "cyberxp", fmt(d.getCyberXpMultiplier())));
         }
-    }
-
-    private String fmtLimit(double max) {
-        return max <= 0.0 ? "∞" : (max + "x");
     }
 
     private void handleReload(CommandSender sender) {
-        plugin.reloadConfig();
+        manager.getPlugin().reloadConfig();
         manager.loadFromConfig();
-        msg(sender, "&aConfiguración recargada. &7(" + manager.getAllBoosts().size() + " skins)");
+        msg.reload();
+        sender.sendMessage(msg.get("reload-done", "count", String.valueOf(manager.getAllBoosts().size())));
     }
 
     private void handleInfo(CommandSender sender, String[] args) {
@@ -185,30 +165,31 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             try {
                 cmd = Integer.parseInt(args[1]);
             } catch (NumberFormatException e) {
-                msg(sender, "&cValor inválido: &f" + args[1]);
+                sender.sendMessage(msg.get("invalid-cmd", "value", args[1]));
                 return;
             }
         } else if (sender instanceof Player p) {
             cmd = getCmdFromHand(p);
             if (cmd == -1) {
-                msg(sender, "&cEl item en mano no tiene CustomModelData.");
+                sender.sendMessage(msg.get("no-cmd-in-hand"));
                 return;
             }
         } else {
-            msg(sender, "&eUso: &f/skinboost info <cmd>");
+            sender.sendMessage(msg.get("usage-info"));
             return;
         }
 
         SkinBoostData data = manager.getBoost(cmd);
         if (data == null) {
-            msg(sender, "&7No hay boost registrado para CMD &f" + cmd + "&7.");
+            sender.sendMessage(msg.get("info-not-found", "cmd", String.valueOf(cmd)));
             return;
         }
-        msg(sender, "&6Info de CMD &f" + cmd + " &7— &f" + data.getName());
-        msg(sender, "&7  Essence:  &f" + data.getEssenceMultiplier() + "x");
-        msg(sender, "&7  Dinero:   &f" + data.getMoneyMultiplier() + "x");
-        msg(sender, "&7  Tool XP:  &f" + data.getToolXpMultiplier() + "x");
-        msg(sender, "&7  Cyber XP: &f" + data.getCyberXpMultiplier() + "x");
+
+        sender.sendMessage(msg.get("info-header", "cmd", String.valueOf(cmd), "name", data.getName()));
+        sender.sendMessage(msg.getRaw("info-essence", "value", fmt(data.getEssenceMultiplier())));
+        sender.sendMessage(msg.getRaw("info-money",   "value", fmt(data.getMoneyMultiplier())));
+        sender.sendMessage(msg.getRaw("info-toolxp",  "value", fmt(data.getToolXpMultiplier())));
+        sender.sendMessage(msg.getRaw("info-cyberxp", "value", fmt(data.getCyberXpMultiplier())));
     }
 
     // ---------------------------------------------------------------
@@ -217,12 +198,8 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (args.length == 1) {
-            return Arrays.asList("set", "remove", "list", "reload", "info");
-        }
-        if (args.length == 2 && args[0].equalsIgnoreCase("set")) {
-            return List.of("hand", "<customModelData>");
-        }
+        if (args.length == 1) return Arrays.asList("set", "remove", "list", "reload", "info");
+        if (args.length == 2 && args[0].equalsIgnoreCase("set")) return List.of("hand", "<customModelData>");
         return List.of();
     }
 
@@ -238,20 +215,20 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
         return meta.getCustomModelData();
     }
 
-    private void msg(CommandSender sender, String message) {
-        sender.sendMessage(colorize(PREFIX_RAW + message));
+    private String fmt(double value) {
+        return String.format("%.2f", value);
     }
 
-    private String colorize(String s) {
-        return s.replace("&", "§");
+    private String fmtLimit(double max) {
+        return max <= 0.0 ? "∞" : (max + "x");
     }
 
     private void sendHelp(CommandSender sender) {
-        msg(sender, "&6=== SkinBoosts Commands ===");
-        msg(sender, "&e/skinboost set <cmd|hand> <nombre> <essence> <money> <tool-xp> <cyber-xp>");
-        msg(sender, "&e/skinboost remove <cmd>");
-        msg(sender, "&e/skinboost list");
-        msg(sender, "&e/skinboost info [cmd]");
-        msg(sender, "&e/skinboost reload");
+        sender.sendMessage(msg.get("help-header"));
+        sender.sendMessage(msg.getRaw("help-set"));
+        sender.sendMessage(msg.getRaw("help-remove"));
+        sender.sendMessage(msg.getRaw("help-list"));
+        sender.sendMessage(msg.getRaw("help-info"));
+        sender.sendMessage(msg.getRaw("help-reload"));
     }
 }
