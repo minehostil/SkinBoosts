@@ -55,6 +55,22 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/libs/CyberLevels.jar</systemPath>
         </dependency>
+        <!-- RivalMobSwords: coloca el JAR en libs/RivalMobSwords.jar -->
+        <dependency>
+            <groupId>me.rivaldev.mobsword</groupId>
+            <artifactId>rivalmobswords</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/RivalMobSwords.jar</systemPath>
+        </dependency>
+        <!-- RivalPickaxes: coloca el JAR en libs/RivalPickaxes.jar -->
+        <dependency>
+            <groupId>me.rivaldev</groupId>
+            <artifactId>pickaxes</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/RivalPickaxes.jar</systemPath>
+        </dependency>
     </dependencies>
 
     <build>
