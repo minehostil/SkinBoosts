@@ -1,5 +1,7 @@
 package com.minehostil.skinboosts.manager;
 
+import com.minehostil.skinboosts.SkinBoostsPlugin;
+import com.minehostil.skinboosts.model.SkinBoostData;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
