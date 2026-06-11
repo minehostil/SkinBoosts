@@ -51,7 +51,7 @@ prefix: '&8[&6SkinBoosts&8] &r'
 # Placeholders: {cmd}, {name}, {value}, {count}
 messages:
   no-permission: '&cNo tienes permiso para usar este comando.'
-  player-only: '&cDebes ser jugador para usar ''hand''.'
+  player-only: '&cDebes ser jugador para usar hand.'
   no-cmd-in-hand: '&cEl item en tu mano no tiene CustomModelData.'
   invalid-cmd: '&cValor de CustomModelData inválido: &f{value}'
   invalid-multipliers: '&cMultiplicadores inválidos. Usa números (ej. 1.5).'
@@ -80,7 +80,13 @@ messages:
   help-remove: '&e/skinboost remove <cmd>'
   help-list: '&e/skinboost list'
   help-info: '&e/skinboost info [cmd]'
-  help-reload: '&e/skinboost reload'
+  usage-apply: '&eUso: &f/skinboost apply <cmd> [jugador]'
+  usage-apply-console: '&eUso desde consola: &f/skinboost apply <cmd> <jugador>'
+  apply-no-item: '&cEl jugador no tiene un item en la mano.'
+  apply-done: '&aCustomModelData &f{cmd} &aaplicado al item de &f{player}&a.'
+  apply-done-target: '&aTu item recibió CustomModelData &f{cmd}&a.'
+  player-not-found: '&cJugador &f{name} &cno encontrado o no está en línea.'
+  help-apply: '&e/skinboost apply <cmd> [jugador]'
 
 # ---------------------------------------------------------------
 #  REFERENCE — Commands & Placeholders (do not edit this section)
@@ -100,6 +106,9 @@ messages:
 #
 #   /skinboost info [cmd]
 #       Shows multipliers for a CMD, or reads CMD from hand if omitted.
+#
+#   /skinboost apply <cmd>
+#       Applies a CustomModelData to the item currently in hand.
 #
 #   /skinboost reload
 #       Reloads config.yml without restarting the server.
