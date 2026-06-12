@@ -129,15 +129,30 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(msg.get("skin-clamped"));
         }
 
-        // If sender is a player and has an item in hand, apply the CMD automatically
-        if (sender instanceof Player player) {
-            ItemStack item = player.getInventory().getItemInMainHand();
+        // Resolve target: extra arg for console, self for player
+        Player target = null;
+        if (args.length > offset + 4) {
+            target = Bukkit.getPlayer(args[offset + 4]);
+            if (target == null) {
+                sender.sendMessage(msg.get("player-not-found", "name", args[offset + 4]));
+                return;
+            }
+        } else if (sender instanceof Player p) {
+            target = p;
+        }
+
+        // Apply CMD to target's item in hand if available
+        if (target != null) {
+            ItemStack item = target.getInventory().getItemInMainHand();
             if (!item.getType().isAir()) {
                 ItemMeta meta = item.getItemMeta();
                 meta.setCustomModelData(customModelData);
                 item.setItemMeta(meta);
                 sender.sendMessage(msg.get("apply-done",
-                        "cmd", String.valueOf(customModelData), "player", player.getName()));
+                        "cmd", String.valueOf(customModelData), "player", target.getName()));
+                if (sender != target) {
+                    target.sendMessage(msg.get("apply-done-target", "cmd", String.valueOf(customModelData)));
+                }
             }
         }
     }
@@ -233,6 +248,8 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
         if (args.length == 1) return Arrays.asList("set", "remove", "list", "reload", "info", "apply", "reset");
         if (args.length == 2 && args[0].equalsIgnoreCase("set")) return List.of("hand", "<customModelData>");
+        if (args.length >= 6 && args[0].equalsIgnoreCase("set"))
+            return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
         if (args.length == 2 && args[0].equalsIgnoreCase("apply")) return List.of("<customModelData>");
         if (args.length == 3 && args[0].equalsIgnoreCase("apply"))
             return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
