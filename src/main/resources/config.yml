@@ -2,33 +2,33 @@
 # Multipliers are applied ON TOP of base values (1.0 = no change, 2.0 = double, etc.)
 #
 # Available multiplier keys:
-#   essence    - RivalHarvesterHoes essence drops
+#   essence    - RivalHarvesterHoes / RivalMobSwords / RivalPickaxes essence drops
 #   money      - Economy money drops
-#   tool-xp    - RivalHarvesterHoes tool XP
+#   tool-xp    - RivalHarvesterHoes / RivalMobSwords / RivalPickaxes tool XP
 #   cyber-xp   - CyberLevels XP
 
 skins:
-  # CustomModelData 1001 -> "Pico de Fuego"
+  # CustomModelData 1001 -> "Fire Pick"
   1001:
-    name: '&cPico de Fuego'
+    name: '&cFire Pick'
     multipliers:
       essence: 1.5
       money: 1.2
       tool-xp: 1.5
       cyber-xp: 1.3
 
-  # CustomModelData 1002 -> "Pico de Hielo"
+  # CustomModelData 1002 -> "Ice Pick"
   1002:
-    name: '&bPico de Hielo'
+    name: '&bIce Pick'
     multipliers:
       essence: 2.0
       money: 1.5
       tool-xp: 2.0
       cyber-xp: 1.5
 
-  # CustomModelData 1003 -> "Pico Sombra"
+  # CustomModelData 1003 -> "Shadow Pick"
   1003:
-    name: '&5Pico Sombra'
+    name: '&5Shadow Pick'
     multipliers:
       essence: 3.0
       money: 2.0
@@ -48,48 +48,49 @@ max-multipliers:
 prefix: '&8[&6SkinBoosts&8] &r'
 
 # Messages (supports & color codes)
-# Placeholders: {cmd}, {name}, {value}, {count}
+# Placeholders: {cmd}, {name}, {value}, {count}, {player}, {boost}
 messages:
-  no-permission: '&cNo tienes permiso para usar este comando.'
-  player-only: '&cDebes ser jugador para usar ''hand''.'
-  no-cmd-in-hand: '&cEl item en tu mano no tiene CustomModelData.'
-  invalid-cmd: '&cValor de CustomModelData inválido: &f{value}'
-  invalid-multipliers: '&cMultiplicadores inválidos. Usa números (ej. 1.5).'
-  skin-saved: '&aSkin &f{cmd} &a({name}) guardada correctamente.'
+  no-permission: '&cYou do not have permission to use this command.'
+  player-only: '&cYou must be a player to use ''hand''.'
+  no-cmd-in-hand: '&cThe item in your hand has no CustomModelData.'
+  invalid-cmd: '&cInvalid CustomModelData value: &f{value}'
+  invalid-multipliers: '&cInvalid multipliers. Use numbers (e.g. 1.5).'
+  skin-saved: '&aSkin &f{cmd} &a({name}) saved successfully.'
   skin-saved-values: '&7  Essence: &f{essence}x &7| Money: &f{money}x &7| ToolXP: &f{toolxp}x &7| CyberXP: &f{cyberxp}x'
-  skin-clamped: '&eAlgún multiplicador fue reducido al máximo permitido.'
-  skin-removed: '&aSkin &f{cmd} eliminada correctamente.'
-  skin-not-found: '&cNo existe ninguna skin registrada con CMD &f{cmd}&c.'
-  no-skins: '&7No hay skins registradas.'
-  list-header: '&6=== Skins Registradas ({count}) ==='
-  list-limits: '&7Límites — E:&f{essence} &7M:&f{money} &7TX:&f{toolxp} &7CX:&f{cyberxp}'
+  skin-clamped: '&eSome multipliers were reduced to the configured maximum.'
+  skin-removed: '&aSkin &f{cmd} removed successfully.'
+  skin-not-found: '&cNo skin registered with CMD &f{cmd}&c.'
+  no-skins: '&7No skins registered.'
+  list-header: '&6=== Registered Skins ({count}) ==='
+  list-limits: '&7Limits — E:&f{essence} &7M:&f{money} &7TX:&f{toolxp} &7CX:&f{cyberxp}'
   list-entry: '&e{cmd} &7— &f{name} &7| E:&f{essence}x &7M:&f{money}x &7TX:&f{toolxp}x &7CX:&f{cyberxp}x'
-  reload-done: '&aConfiguración recargada. &7({count} skins)'
-  info-not-found: '&7No hay boost registrado para CMD &f{cmd}&7.'
-  info-header: '&6Info de CMD &f{cmd} &7— &f{name}'
+  reload-done: '&aConfiguration reloaded. &7({count} skins)'
+  info-not-found: '&7No boost registered for CMD &f{cmd}&7.'
+  info-header: '&6CMD &f{cmd} &7— &f{name}'
   info-essence: '&7  Essence:  &f{value}x'
-  info-money: '&7  Dinero:   &f{value}x'
+  info-money: '&7  Money:    &f{value}x'
   info-toolxp: '&7  Tool XP:  &f{value}x'
   info-cyberxp: '&7  Cyber XP: &f{value}x'
-  usage-set: '&eUso: &f/skinboost set <cmd|hand> <nombre> <essence> <dinero> <tool-xp> <cyber-xp>'
-  usage-set-example: '&7Ejemplo: &f/skinboost set 1001 "Pico_Fuego" 1.5 1.2 1.5 1.3'
-  usage-remove: '&eUso: &f/skinboost remove <cmd>'
-  usage-info: '&eUso: &f/skinboost info <cmd>'
+  usage-set: '&eUsage: &f/skinboost set <cmd|hand> [name] <essence> <money> <tool-xp> <cyber-xp>'
+  usage-set-example: '&7Example: &f/skinboost set 1001 1.5 1.2 1.5 1.3'
+  usage-remove: '&eUsage: &f/skinboost remove <cmd>'
+  usage-info: '&eUsage: &f/skinboost info <cmd>'
   help-header: '&6=== SkinBoosts Commands ==='
-  help-set: '&e/skinboost set <cmd|hand> <nombre> <essence> <money> <tool-xp> <cyber-xp>'
+  help-set: '&e/skinboost set <cmd|hand> [name] <essence> <money> <tool-xp> <cyber-xp>'
   help-remove: '&e/skinboost remove <cmd>'
   help-list: '&e/skinboost list'
   help-info: '&e/skinboost info [cmd]'
-  usage-apply: '&eUso: &f/skinboost apply <cmd> [jugador]'
-  usage-apply-console: '&eUso desde consola: &f/skinboost apply <cmd> <jugador>'
-  apply-no-item: '&cEl jugador no tiene un item en la mano.'
-  apply-done: '&aCustomModelData &f{cmd} &aaplicado al item de &f{player}&a.'
-  apply-done-target: '&aTu item recibió CustomModelData &f{cmd}&a.'
-  player-not-found: '&cJugador &f{name} &cno encontrado o no está en línea.'
-  usage-reset-console: '&eUso desde consola: &f/skinboost reset <jugador>'
-  reset-done: '&aItem de &f{player} &areset. CMD removido: &f{cmd} &a| Boost eliminado: &f{boost}&a.'
-  reset-done-target: '&aTu item fue reseteado.'
-  help-reset: '&e/skinboost reset [jugador]'
+  usage-apply: '&eUsage: &f/skinboost apply <cmd> [player]'
+  usage-apply-console: '&eConsole usage: &f/skinboost apply <cmd> <player>'
+  apply-no-item: '&cThe player has no item in hand.'
+  apply-done: '&aCustomModelData &f{cmd} &aapplied to &f{player}&a''s item.'
+  apply-done-target: '&aYour item received CustomModelData &f{cmd}&a.'
+  player-not-found: '&cPlayer &f{name} &cnot found or not online.'
+  usage-reset-console: '&eConsole usage: &f/skinboost reset <player>'
+  reset-done: '&aItem of &f{player} &areset. CMD removed: &f{cmd} &a| Boost deleted: &f{boost}&a.'
+  reset-done-target: '&aYour item has been reset.'
+  help-reset: '&e/skinboost reset [player]'
+  help-reload: '&e/skinboost reload'
 
 # ---------------------------------------------------------------
 #  REFERENCE — Commands & Placeholders (do not edit this section)
@@ -97,9 +98,9 @@ messages:
 #
 # COMMANDS (permission: skinboosts.admin)
 #
-#   /skinboost set <cmd|hand> <nombre> <essence> <money> <tool-xp> <cyber-xp>
+#   /skinboost set <cmd|hand> [name] <essence> <money> <tool-xp> <cyber-xp>
 #       Registers a skin boost by CustomModelData or reads CMD from hand.
-#       Example: /skinboost set 1001 Pico_Fuego 1.5 1.2 1.5 1.3
+#       Name is optional. Example: /skinboost set 1001 1.5 1.2 1.5 1.3
 #
 #   /skinboost remove <cmd>
 #       Removes a registered skin boost.
@@ -110,10 +111,11 @@ messages:
 #   /skinboost info [cmd]
 #       Shows multipliers for a CMD, or reads CMD from hand if omitted.
 #
-#   /skinboost apply <cmd>
-#       Applies a CustomModelData to the item currently in hand.
+#   /skinboost apply <cmd> [player]
+#       Applies a CustomModelData to the item in hand.
+#       Player is optional in-game, required from console.
 #
-#   /skinboost reset [jugador]
+#   /skinboost reset [player]
 #       Removes the CustomModelData from the item in hand and deletes its boost.
 #       Player is optional in-game, required from console.
 #
