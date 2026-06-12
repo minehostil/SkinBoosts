@@ -81,7 +81,7 @@ All commands require the `skinboosts.admin` permission (default: op).
 
 | Command | Description |
 |---|---|
-| `/skinboost set <cmd\|hand> [name] <essence> <money> <tool-xp> <cyber-xp>` | Register or update a skin boost. Use `hand` to read CMD from item in hand. Name is optional. |
+| `/skinboost set <cmd\|hand> [name] <essence> <money> <tool-xp> <cyber-xp> [player]` | Register or update a skin boost. Use `hand` to read CMD from item in hand. Name and player are optional. If player is provided, applies the CMD to their item in hand. |
 | `/skinboost remove <cmd>` | Remove a registered skin boost. |
 | `/skinboost list` | List all registered skins and active limits. |
 | `/skinboost info [cmd]` | Show multipliers for a CMD. Reads from hand if CMD is omitted. |
@@ -97,6 +97,12 @@ All commands require the `skinboosts.admin` permission (default: op).
 
 # Register reading CMD from item in hand
 /skinboost set hand Fire_Pick 2.0 1.5 2.0 1.5
+
+# Register boost and apply CMD to your item in hand (in-game)
+/skinboost set 730 3.0 3.0 3.0 3.0
+
+# Register boost and apply CMD to a player's item in hand (console or in-game)
+skinboost set 730 3.0 3.0 3.0 3.0 Steve
 
 # Apply CMD 730 to the item in your hand
 /skinboost apply 730
