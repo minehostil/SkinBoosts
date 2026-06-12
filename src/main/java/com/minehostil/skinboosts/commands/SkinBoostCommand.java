@@ -46,6 +46,7 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             case "reload" -> handleReload(sender);
             case "info"   -> handleInfo(sender, args);
             case "apply"  -> handleApply(sender, args);
+            case "reset"  -> handleReset(sender, args);
             default       -> sendHelp(sender);
         }
         return true;
@@ -218,12 +219,56 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (args.length == 1) return Arrays.asList("set", "remove", "list", "reload", "info", "apply");
+        if (args.length == 1) return Arrays.asList("set", "remove", "list", "reload", "info", "apply", "reset");
         if (args.length == 2 && args[0].equalsIgnoreCase("set")) return List.of("hand", "<customModelData>");
         if (args.length == 2 && args[0].equalsIgnoreCase("apply")) return List.of("<customModelData>");
         if (args.length == 3 && args[0].equalsIgnoreCase("apply"))
             return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
+        if (args.length == 2 && args[0].equalsIgnoreCase("reset"))
+            return Bukkit.getOnlinePlayers().stream().map(Player::getName).toList();
         return List.of();
+    }
+
+    private void handleReset(CommandSender sender, String[] args) {
+        // Resolve target player
+        Player target;
+        if (args.length >= 2) {
+            target = Bukkit.getPlayer(args[1]);
+            if (target == null) {
+                sender.sendMessage(msg.get("player-not-found", "name", args[1]));
+                return;
+            }
+        } else if (sender instanceof Player p) {
+            target = p;
+        } else {
+            sender.sendMessage(msg.get("usage-reset-console"));
+            return;
+        }
+
+        ItemStack item = target.getInventory().getItemInMainHand();
+        if (item.getType().isAir()) {
+            sender.sendMessage(msg.get("apply-no-item"));
+            return;
+        }
+
+        ItemMeta meta = item.getItemMeta();
+        int cmd = meta.hasCustomModelData() ? meta.getCustomModelData() : -1;
+
+        // Remove CMD from item
+        meta.setCustomModelData(null);
+        item.setItemMeta(meta);
+
+        // Remove boost if it was registered
+        boolean hadBoost = cmd != -1 && manager.removeSkin(cmd);
+
+        sender.sendMessage(msg.get("reset-done",
+                "player", target.getName(),
+                "cmd", cmd != -1 ? String.valueOf(cmd) : "none",
+                "boost", hadBoost ? "yes" : "no"));
+
+        if (sender != target) {
+            target.sendMessage(msg.get("reset-done-target"));
+        }
     }
 
     private void handleApply(CommandSender sender, String[] args) {
@@ -303,6 +348,7 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(msg.getRaw("help-list"));
         sender.sendMessage(msg.getRaw("help-info"));
         sender.sendMessage(msg.getRaw("help-apply"));
+        sender.sendMessage(msg.getRaw("help-reset"));
         sender.sendMessage(msg.getRaw("help-reload"));
     }
 }
