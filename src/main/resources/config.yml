@@ -51,7 +51,7 @@ prefix: '&8[&6SkinBoosts&8] &r'
 # Placeholders: {cmd}, {name}, {value}, {count}
 messages:
   no-permission: '&cNo tienes permiso para usar este comando.'
-  player-only: '&cDebes ser jugador para usar hand.'
+  player-only: '&cDebes ser jugador para usar ''hand''.'
   no-cmd-in-hand: '&cEl item en tu mano no tiene CustomModelData.'
   invalid-cmd: '&cValor de CustomModelData inválido: &f{value}'
   invalid-multipliers: '&cMultiplicadores inválidos. Usa números (ej. 1.5).'
@@ -86,7 +86,10 @@ messages:
   apply-done: '&aCustomModelData &f{cmd} &aaplicado al item de &f{player}&a.'
   apply-done-target: '&aTu item recibió CustomModelData &f{cmd}&a.'
   player-not-found: '&cJugador &f{name} &cno encontrado o no está en línea.'
-  help-apply: '&e/skinboost apply <cmd> [jugador]'
+  usage-reset-console: '&eUso desde consola: &f/skinboost reset <jugador>'
+  reset-done: '&aItem de &f{player} &areset. CMD removido: &f{cmd} &a| Boost eliminado: &f{boost}&a.'
+  reset-done-target: '&aTu item fue reseteado.'
+  help-reset: '&e/skinboost reset [jugador]'
 
 # ---------------------------------------------------------------
 #  REFERENCE — Commands & Placeholders (do not edit this section)
@@ -109,6 +112,10 @@ messages:
 #
 #   /skinboost apply <cmd>
 #       Applies a CustomModelData to the item currently in hand.
+#
+#   /skinboost reset [jugador]
+#       Removes the CustomModelData from the item in hand and deletes its boost.
+#       Player is optional in-game, required from console.
 #
 #   /skinboost reload
 #       Reloads config.yml without restarting the server.
