@@ -128,6 +128,18 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
                 || saved.getToolXpMultiplier() < toolXp || saved.getCyberXpMultiplier() < cyberXp) {
             sender.sendMessage(msg.get("skin-clamped"));
         }
+
+        // If sender is a player and has an item in hand, apply the CMD automatically
+        if (sender instanceof Player player) {
+            ItemStack item = player.getInventory().getItemInMainHand();
+            if (!item.getType().isAir()) {
+                ItemMeta meta = item.getItemMeta();
+                meta.setCustomModelData(customModelData);
+                item.setItemMeta(meta);
+                sender.sendMessage(msg.get("apply-done",
+                        "cmd", String.valueOf(customModelData), "player", player.getName()));
+            }
+        }
     }
 
     private void handleRemove(CommandSender sender, String[] args) {
