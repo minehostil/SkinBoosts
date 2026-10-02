@@ -154,7 +154,7 @@ public class HarvestListener implements Listener {
         if (!item.hasItemMeta()) return null;
         ItemMeta meta = item.getItemMeta();
         if (meta == null || !meta.hasCustomModelData()) return null;
-        return manager.getBoost(meta.getCustomModelData());
+        return manager.getBoost(player.getUniqueId(), meta.getCustomModelData());  // personal > global
     }
 
 }
