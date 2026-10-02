@@ -114,6 +114,48 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        // ------------------------------------------------------------
+        // Con [player] -> boost PERSONAL para ese jugador (no toca el global)
+        // Sin [player] -> boost GLOBAL (comportamiento original)
+        // ------------------------------------------------------------
+        if (args.length > offset + 4) {
+            Player target = Bukkit.getPlayer(args[offset + 4]);
+            if (target == null) {
+                sender.sendMessage(msg.get("player-not-found", "name", args[offset + 4]));
+                return;
+            }
+
+            SkinBoostData savedP = manager.setPlayerBoost(target.getUniqueId(), customModelData, name, essence, money, toolXp, cyberXp);
+
+            sender.sendMessage(msg.get("skin-saved",
+                    "cmd", String.valueOf(customModelData), "name", name));
+            sender.sendMessage(msg.get("skin-saved-values",
+                    "essence", fmt(savedP.getEssenceMultiplier()),
+                    "money",   fmt(savedP.getMoneyMultiplier()),
+                    "toolxp",  fmt(savedP.getToolXpMultiplier()),
+                    "cyberxp", fmt(savedP.getCyberXpMultiplier())));
+
+            if (savedP.getEssenceMultiplier() < essence || savedP.getMoneyMultiplier() < money
+                    || savedP.getToolXpMultiplier() < toolXp || savedP.getCyberXpMultiplier() < cyberXp) {
+                sender.sendMessage(msg.get("skin-clamped"));
+            }
+
+            // Apply CMD to target's item in hand
+            ItemStack item = target.getInventory().getItemInMainHand();
+            if (!item.getType().isAir()) {
+                ItemMeta meta = item.getItemMeta();
+                meta.setCustomModelData(customModelData);
+                item.setItemMeta(meta);
+                sender.sendMessage(msg.get("apply-done",
+                        "cmd", String.valueOf(customModelData), "player", target.getName()));
+                if (sender != target) {
+                    target.sendMessage(msg.get("apply-done-target", "cmd", String.valueOf(customModelData)));
+                }
+            }
+            return;
+        }
+
+        // Sin [player]: global (como siempre) y, si sender es player, aplica CMD a su mano
         SkinBoostData saved = manager.setSkin(customModelData, name, essence, money, toolXp, cyberXp);
 
         sender.sendMessage(msg.get("skin-saved",
@@ -129,30 +171,14 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(msg.get("skin-clamped"));
         }
 
-        // Resolve target: extra arg for console, self for player
-        Player target = null;
-        if (args.length > offset + 4) {
-            target = Bukkit.getPlayer(args[offset + 4]);
-            if (target == null) {
-                sender.sendMessage(msg.get("player-not-found", "name", args[offset + 4]));
-                return;
-            }
-        } else if (sender instanceof Player p) {
-            target = p;
-        }
-
-        // Apply CMD to target's item in hand if available
-        if (target != null) {
-            ItemStack item = target.getInventory().getItemInMainHand();
+        if (sender instanceof Player p) {
+            ItemStack item = p.getInventory().getItemInMainHand();
             if (!item.getType().isAir()) {
                 ItemMeta meta = item.getItemMeta();
                 meta.setCustomModelData(customModelData);
                 item.setItemMeta(meta);
                 sender.sendMessage(msg.get("apply-done",
-                        "cmd", String.valueOf(customModelData), "player", target.getName()));
-                if (sender != target) {
-                    target.sendMessage(msg.get("apply-done-target", "cmd", String.valueOf(customModelData)));
-                }
+                        "cmd", String.valueOf(customModelData), "player", p.getName()));
             }
         }
     }
@@ -227,17 +253,30 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
+        // Boost GLOBAL (si existe)
         SkinBoostData data = manager.getBoost(cmd);
-        if (data == null) {
+        if (data != null) {
+            sender.sendMessage(msg.get("info-header", "cmd", String.valueOf(cmd), "name", data.getName()));
+            sender.sendMessage(msg.getRaw("info-essence", "value", fmt(data.getEssenceMultiplier())));
+            sender.sendMessage(msg.getRaw("info-money",   "value", fmt(data.getMoneyMultiplier())));
+            sender.sendMessage(msg.getRaw("info-toolxp",  "value", fmt(data.getToolXpMultiplier())));
+            sender.sendMessage(msg.getRaw("info-cyberxp", "value", fmt(data.getCyberXpMultiplier())));
+        } else {
             sender.sendMessage(msg.get("info-not-found", "cmd", String.valueOf(cmd)));
-            return;
         }
 
-        sender.sendMessage(msg.get("info-header", "cmd", String.valueOf(cmd), "name", data.getName()));
-        sender.sendMessage(msg.getRaw("info-essence", "value", fmt(data.getEssenceMultiplier())));
-        sender.sendMessage(msg.getRaw("info-money",   "value", fmt(data.getMoneyMultiplier())));
-        sender.sendMessage(msg.getRaw("info-toolxp",  "value", fmt(data.getToolXpMultiplier())));
-        sender.sendMessage(msg.getRaw("info-cyberxp", "value", fmt(data.getCyberXpMultiplier())));
+        // Boost PERSONAL del jugador (si es player y existe)
+        if (sender instanceof Player p) {
+            SkinBoostData personal = manager.getPlayerBoost(p.getUniqueId(), cmd);
+            if (personal != null) {
+                sender.sendMessage("§8§m--------------------§r");
+                sender.sendMessage(msg.get("info-header", "cmd", String.valueOf(cmd), "name", personal.getName()));
+                sender.sendMessage(msg.getRaw("info-essence", "value", fmt(personal.getEssenceMultiplier())));
+                sender.sendMessage(msg.getRaw("info-money",   "value", fmt(personal.getMoneyMultiplier())));
+                sender.sendMessage(msg.getRaw("info-toolxp",  "value", fmt(personal.getToolXpMultiplier())));
+                sender.sendMessage(msg.getRaw("info-cyberxp", "value", fmt(personal.getCyberXpMultiplier())));
+            }
+        }
     }
 
     // ---------------------------------------------------------------
@@ -287,8 +326,8 @@ public class SkinBoostCommand implements CommandExecutor, TabCompleter {
         meta.setCustomModelData(null);
         item.setItemMeta(meta);
 
-        // Remove boost if it was registered
-        boolean hadBoost = cmd != -1 && manager.removeSkin(cmd);
+        // Remove ONLY the player's personal boost — the GLOBAL boost stays intact
+        boolean hadBoost = cmd != -1 && manager.removePlayerBoost(target.getUniqueId(), cmd);
 
         sender.sendMessage(msg.get("reset-done",
                 "player", target.getName(),
