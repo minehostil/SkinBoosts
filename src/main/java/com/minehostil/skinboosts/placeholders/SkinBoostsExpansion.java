@@ -1,35 +1,14 @@
 package com.minehostil.skinboosts.placeholders;
 
-import com.minehostil.skinboosts.model.SkinBoostData;
 import com.minehostil.skinboosts.manager.SkinBoostManager;
+import com.minehostil.skinboosts.model.SkinBoostData;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * PlaceholderAPI expansion for SkinBoosts.
- *
- * All placeholders read the item currently in the player's main hand.
- *
- * Available placeholders:
- *   %skinboosts_essence%    → essence multiplier (e.g. "1.50")
- *   %skinboosts_money%      → money multiplier
- *   %skinboosts_toolxp%     → tool XP multiplier
- *   %skinboosts_cyberxp%    → cyber XP multiplier
- *   %skinboosts_name%       → display name of the active skin, or "None"
- *   %skinboosts_cmd%        → raw CustomModelData int, or "-1" if none
- *   %skinboosts_active%     → "true" / "false"
- *
- * Formatted variants (show as "x1.50" with the x prefix):
- *   %skinboosts_essence_fmt%
- *   %skinboosts_money_fmt%
- *   %skinboosts_toolxp_fmt%
- *   %skinboosts_cyberxp_fmt%
- */
 public class SkinBoostsExpansion extends PlaceholderExpansion {
 
     private final SkinBoostManager manager;
@@ -50,66 +29,57 @@ public class SkinBoostsExpansion extends PlaceholderExpansion {
 
     @Override
     public @NotNull String getVersion() {
-        return "1.0.0";
+        return "1.1.0";
     }
 
     @Override
     public boolean persist() {
-        // Keep registered through /papi reload
         return true;
     }
 
     @Override
-    public @Nullable String onRequest(OfflinePlayer offlinePlayer, @NotNull String params) {
-        // All placeholders require an online player (we need inventory access)
-        if (offlinePlayer == null || !offlinePlayer.isOnline()) return "0";
-        Player player = offlinePlayer.getPlayer();
-        if (player == null) return "0";
+    public String onRequest(Player player, @NotNull String params) {
+        if (player == null) return null;
 
-        SkinBoostData data = getBoostFromHand(player);
+        ItemStack item = player.getInventory().getItemInMainHand();
+        if (!item.hasItemMeta()) return defaults(params);
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !meta.hasCustomModelData()) return defaults(params);
+
+        int cmd = meta.getCustomModelData();
+
+        // Resolución por jugador: personal > global
+        SkinBoostData boost = manager.getBoost(player.getUniqueId(), cmd);
+        if (boost == null) return defaults(params);
 
         return switch (params.toLowerCase()) {
-            case "essence"     -> data != null ? fmt(data.getEssenceMultiplier())  : "1.00";
-            case "money"       -> data != null ? fmt(data.getMoneyMultiplier())    : "1.00";
-            case "toolxp"      -> data != null ? fmt(data.getToolXpMultiplier())   : "1.00";
-            case "cyberxp"     -> data != null ? fmt(data.getCyberXpMultiplier())  : "1.00";
-
-            case "essence_fmt" -> data != null ? "x" + fmt(data.getEssenceMultiplier())  : "x1.00";
-            case "money_fmt"   -> data != null ? "x" + fmt(data.getMoneyMultiplier())    : "x1.00";
-            case "toolxp_fmt"  -> data != null ? "x" + fmt(data.getToolXpMultiplier())   : "x1.00";
-            case "cyberxp_fmt" -> data != null ? "x" + fmt(data.getCyberXpMultiplier())  : "x1.00";
-
-            case "name"        -> data != null ? colorize(data.getName()) : "None";
-            case "cmd"         -> data != null ? String.valueOf(data.getCustomModelData()) : "-1";
-            case "active"      -> data != null ? "true" : "false";
-
-            default -> null; // Unknown placeholder → PAPI shows it unparsed
+            case "essence"     -> fmt(boost.getEssenceMultiplier());
+            case "money"       -> fmt(boost.getMoneyMultiplier());
+            case "toolxp"      -> fmt(boost.getToolXpMultiplier());
+            case "cyberxp"     -> fmt(boost.getCyberXpMultiplier());
+            case "essence_fmt" -> "x" + fmt(boost.getEssenceMultiplier());
+            case "money_fmt"   -> "x" + fmt(boost.getMoneyMultiplier());
+            case "toolxp_fmt"  -> "x" + fmt(boost.getToolXpMultiplier());
+            case "cyberxp_fmt" -> "x" + fmt(boost.getCyberXpMultiplier());
+            case "name"        -> boost.getName() != null ? boost.getName() : "None";
+            case "cmd"         -> String.valueOf(boost.getCustomModelData());
+            case "active"      -> "true";
+            default            -> null;
         };
     }
 
-    // ---------------------------------------------------------------
-    //  Helpers
-    // ---------------------------------------------------------------
-
-    /**
-     * Reads the CustomModelData from the player's main-hand item and
-     * returns the matching SkinBoostData, or null if not registered.
-     */
-    private SkinBoostData getBoostFromHand(Player player) {
-        ItemStack item = player.getInventory().getItemInMainHand();
-        if (!item.hasItemMeta()) return null;
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasCustomModelData()) return null;
-        return manager.getBoost(meta.getCustomModelData());
+    private String defaults(String params) {
+        return switch (params.toLowerCase()) {
+            case "essence", "money", "toolxp", "cyberxp" -> "1.00";
+            case "essence_fmt", "money_fmt", "toolxp_fmt", "cyberxp_fmt" -> "x1.00";
+            case "name"   -> "None";
+            case "cmd"    -> "-1";
+            case "active" -> "false";
+            default       -> null;
+        };
     }
 
-    /** Format a double to 2 decimal places. */
     private String fmt(double value) {
         return String.format("%.2f", value);
-    }
-
-    /** Translate legacy & color codes for display names. */
-    private String colorize(String s) {
-        return s.replace("&", "§");
     }
 }
